@@ -189,15 +189,48 @@ def format_number(num):
     return f"{num:,}"
 
 
-def render_frontend_table(df, key, column_config=None):
-    """Render an interactive dataframe with Streamlit's built-in toolbar."""
+def render_frontend_table(df, key, column_config=None, filename=None):
+    """Render a dataframe with download, expand, and more-options controls."""
+    filename = filename or f"{key}.csv"
+    expand_key = f"{key}_expand"
+    summary_key = f"{key}_summary"
+
+    toolbar_col1, toolbar_col2, _ = st.columns([1, 1, 6])
+    with toolbar_col1:
+        st.download_button(
+            label="⬇️",
+            data=df.to_csv(index=False).encode("utf-8"),
+            file_name=filename,
+            mime="text/csv",
+            key=f"{key}_download",
+        )
+    with toolbar_col2:
+        if st.button("🔍", key=f"{key}_expand_button"):
+            st.session_state[expand_key] = not st.session_state.get(expand_key, False)
+
+    table_height = 600 if st.session_state.get(expand_key, False) else None
+    if st.session_state.get(expand_key, False):
+        st.write("### Fullscreen View")
+
     st.dataframe(
         df,
         use_container_width=True,
         hide_index=True,
         column_config=column_config,
         key=key,
+        height=table_height,
     )
+
+    with st.expander("⋯ More options"):
+        st.write(f"Rows: {len(df):,} | Columns: {len(df.columns):,}")
+        if st.button("Show summary", key=f"{key}_summary_button"):
+            st.session_state[summary_key] = not st.session_state.get(summary_key, False)
+        if st.session_state.get(summary_key, False):
+            st.dataframe(
+                df.describe(include="all").fillna(""),
+                use_container_width=True,
+                key=f"{key}_summary_table",
+            )
 
 
 def get_filters(key_prefix):
@@ -471,7 +504,11 @@ if page == PAGE_COVERAGE:
                 })
 
             timeline_df = pd.DataFrame(timeline_rows)
-            render_frontend_table(timeline_df, "coverage_timeline_table")
+            render_frontend_table(
+                timeline_df,
+                "coverage_timeline_table",
+                filename="coverage_timeline.csv",
+            )
 
             st.markdown("---")
 
@@ -502,6 +539,7 @@ if page == PAGE_COVERAGE:
             render_frontend_table(
                 feed_df,
                 "chronological_feed_table",
+                filename="chronological_feed.csv",
                 column_config={
                     "URL": st.column_config.LinkColumn("Link", display_text="Open"),
                 }
@@ -736,6 +774,7 @@ elif page == PAGE_DUPLICATES:
             render_frontend_table(
                 publisher_df,
                 f"duplicate_story_{g_idx}_table",
+                filename=f"duplicate_story_{g_idx:03}.csv",
                 column_config={
                     "URL": st.column_config.LinkColumn("Link", display_text="Open"),
                 }
@@ -771,6 +810,7 @@ elif page == PAGE_DUPLICATES:
         render_frontend_table(
             export_df,
             "duplicate_summary_table",
+            filename="duplicate_summary.csv",
             column_config={
                 "Duplicate %": st.column_config.NumberColumn("Duplicate %", format="%.1f%%"),
                 "URL": st.column_config.LinkColumn("Link", display_text="Open"),
