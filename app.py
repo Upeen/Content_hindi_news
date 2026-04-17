@@ -189,20 +189,6 @@ def format_number(num):
     return f"{num:,}"
 
 
-def render_table_download(df, filename, key):
-    """Render a compact download control for a dataframe."""
-    csv_col, _ = st.columns([1, 4])
-    with csv_col:
-        st.download_button(
-            "Download table",
-            df.to_csv(index=False).encode("utf-8"),
-            filename,
-            "text/csv",
-            use_container_width=True,
-            key=key,
-        )
-
-
 def get_filters(key_prefix):
     import datetime
     from datetime import timedelta
@@ -474,7 +460,6 @@ if page == PAGE_COVERAGE:
                 })
 
             timeline_df = pd.DataFrame(timeline_rows)
-            render_table_download(timeline_df, "coverage_timeline.csv", "coverage_timeline_download")
             st.dataframe(
                 timeline_df,
                 use_container_width=True,
@@ -507,7 +492,6 @@ if page == PAGE_COVERAGE:
                 })
 
             feed_df = pd.DataFrame(feed_data)
-            render_table_download(feed_df, "chronological_feed.csv", "chronological_feed_download")
             st.dataframe(
                 feed_df,
                 use_container_width=True,
@@ -743,7 +727,6 @@ elif page == PAGE_DUPLICATES:
                 })
 
             publisher_df = pd.DataFrame(publishers_data)
-            render_table_download(publisher_df, f"duplicate_story_{g_idx:03}.csv", f"duplicate_story_{g_idx}_download")
             st.dataframe(
                 publisher_df,
                 use_container_width=True,
@@ -780,7 +763,6 @@ elif page == PAGE_DUPLICATES:
         if not export_df.empty:
             export_df = export_df.sort_values("Duplicate %", ascending=False).reset_index(drop=True)
 
-        render_table_download(export_df, "duplicate_summary.csv", "duplicate_summary_download")
         st.dataframe(
             export_df,
             use_container_width=True,
