@@ -189,6 +189,17 @@ def format_number(num):
     return f"{num:,}"
 
 
+def render_frontend_table(df, key, column_config=None):
+    """Render an interactive dataframe with Streamlit's built-in toolbar."""
+    st.dataframe(
+        df,
+        use_container_width=True,
+        hide_index=True,
+        column_config=column_config,
+        key=key,
+    )
+
+
 def get_filters(key_prefix):
     import datetime
     from datetime import timedelta
@@ -460,11 +471,7 @@ if page == PAGE_COVERAGE:
                 })
 
             timeline_df = pd.DataFrame(timeline_rows)
-            st.dataframe(
-                timeline_df,
-                use_container_width=True,
-                hide_index=True,
-            )
+            render_frontend_table(timeline_df, "coverage_timeline_table")
 
             st.markdown("---")
 
@@ -492,10 +499,9 @@ if page == PAGE_COVERAGE:
                 })
 
             feed_df = pd.DataFrame(feed_data)
-            st.dataframe(
+            render_frontend_table(
                 feed_df,
-                use_container_width=True,
-                hide_index=True,
+                "chronological_feed_table",
                 column_config={
                     "URL": st.column_config.LinkColumn("Link", display_text="Open"),
                 }
@@ -727,10 +733,9 @@ elif page == PAGE_DUPLICATES:
                 })
 
             publisher_df = pd.DataFrame(publishers_data)
-            st.dataframe(
+            render_frontend_table(
                 publisher_df,
-                use_container_width=True,
-                hide_index=True,
+                f"duplicate_story_{g_idx}_table",
                 column_config={
                     "URL": st.column_config.LinkColumn("Link", display_text="Open"),
                 }
@@ -763,10 +768,9 @@ elif page == PAGE_DUPLICATES:
         if not export_df.empty:
             export_df = export_df.sort_values("Duplicate %", ascending=False).reset_index(drop=True)
 
-        st.dataframe(
+        render_frontend_table(
             export_df,
-            use_container_width=True,
-            hide_index=True,
+            "duplicate_summary_table",
             column_config={
                 "Duplicate %": st.column_config.NumberColumn("Duplicate %", format="%.1f%%"),
                 "URL": st.column_config.LinkColumn("Link", display_text="Open"),
