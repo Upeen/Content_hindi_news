@@ -29,13 +29,13 @@ st.set_page_config(
 
 PAGE_LATEST = "🏠 Dashboard"
 PAGE_COVERAGE = "🏁 Coverage Race"
-PAGE_DUPLICATES = "🔥 Trending Search"
+PAGE_DUPLICATES = "🔥 Duplicate Content"
 PAGE_DATE_WISE = "📊 Raw Data"
 
 st.markdown(
     """
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
 
     :root {
         --primary: #FF4B4B;
@@ -51,7 +51,7 @@ st.markdown(
 
 
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif !important;
+        font-family: 'Poppins', sans-serif !important;
         background-color: var(--bg-dark);
         color: var(--text-main);
     }
@@ -98,11 +98,11 @@ st.markdown(
 
     /* Professional Table Refinement */
     [data-testid="stDataFrame"], .stDataFrame, table {
-        font-size: 1.2rem !important;
+        font-size: 1.4rem !important;
     }
     
     [data-testid="stDataFrame"] th, th {
-        font-size: 1.2rem !important;
+        font-size: 1.3rem !important;
         font-weight: 700 !important;
     }
 
@@ -137,8 +137,8 @@ st.markdown(
         padding-top: 1rem !important;
     }
 
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1 {
-        font-size: 2.4rem !important;
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1 {
+        font-size: 2.8rem !important;
         font-weight: 800 !important;
         color: var(--primary) !important;
         display: flex;
@@ -147,6 +147,42 @@ st.markdown(
         text-align: center;
         gap: 12px;
         margin-bottom: 0px !important;
+        letter-spacing: -0.5px;
+    }
+
+
+
+
+    [data-testid="stSidebar"] .stCaption {
+        color: #808495;
+        font-size: 1.1rem !important;
+        font-weight: 500;
+        margin-bottom: 2rem !important;
+    }
+
+    /* Premium Radio Navigation */
+    div[data-testid="stRadio"] > div {
+        gap: 12px;
+        padding: 0 5px;
+    }
+    
+    div[data-testid="stRadio"] label {
+        background: transparent !important;
+        border-radius: 10px !important;
+        padding: 12px 18px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid transparent !important;
+        margin-bottom: 4px;
+        cursor: pointer;
+        display: flex !important;
+        align-items: center;
+    }
+
+    div[data-testid="stRadio"] label p {
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        color: inherit !important;
+        margin: 0 !important;
     }
 
 
@@ -299,7 +335,7 @@ st.markdown(
         height: 50px;
         color: var(--text-dim) !important;
         font-weight: 600 !important;
-        font-size: 1rem !important;
+        font-size: 1.2rem !important;
         background-color: transparent !important;
         border: none !important;
     }
@@ -330,16 +366,18 @@ st.markdown(
 
     /* Section Titles */
     .section-title {
-        font-size: 2.5rem;
+        font-size: 3rem;
         font-weight: 800;
         margin-bottom: 0.5rem;
         color: var(--text-main);
+        letter-spacing: -0.5px;
     }
     
     .section-subtitle {
-        font-size: 1.1rem;
+        font-size: 1.3rem;
         color: var(--text-dim);
         margin-bottom: 2rem;
+        font-weight: 400;
     }
 
     /* Hide default streamlit elements */
@@ -815,9 +853,6 @@ elif page == PAGE_DUPLICATES:
             date2 = ts2.date()
             if not ((cov_start <= date1 <= cov_end) or (cov_start <= date2 <= cov_end)):
                 continue
-
-
-        filtered_pairs.append(pair)
 
         filtered_pairs.append(pair)
 
