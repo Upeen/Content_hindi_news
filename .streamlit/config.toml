@@ -3,11 +3,13 @@ name = "Breaking News Finder"
 email = "your.email@example.com"
 
 [theme]
-primaryColor = "#FF3D71"
-backgroundColor = "#0E0E12"
-secondaryBackgroundColor = "#1A1A24"
-textColor = "#FFFFFF"
+primaryColor = "#FF4B4B"
+backgroundColor = "#000000"
+secondaryBackgroundColor = "#0E1117"
+textColor = "#FAFAFA"
 font = "sans serif"
+
+
 
 [browser]
 gatherUsageStats = false

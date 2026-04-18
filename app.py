@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Breaking News Finder - Streamlit Dashboard
 Zee Gujarati Competitor Analysis Tool
@@ -26,215 +27,332 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-PAGE_LATEST = "⏱ Latest Articles"
+PAGE_LATEST = "🏠 Dashboard"
 PAGE_COVERAGE = "🏁 Coverage Race"
-PAGE_DUPLICATES = "🔁 Duplicate Content"
-PAGE_DATE_WISE = "📅 Volume Intelligence"
+PAGE_DUPLICATES = "🔥 Trending Search"
+PAGE_DATE_WISE = "📊 Raw Data"
 
 st.markdown(
     """
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
 
     :root {
-        --primary: #2BD2FF;
-        --secondary: #7000FF;
-        --accent: #FF3D71;
-        --bg-dark: #0A0A0F;
-        --card-bg: rgba(255, 255, 255, 0.03);
-        --card-border: rgba(255, 255, 255, 0.08);
-        --text-main: #E2E2E6;
+        --primary: #FF4B4B;
+        --secondary: #262730;
+        --bg-dark: #080d1a;
+        --sidebar-bg: #0E1117;
+        --text-main: #FAFAFA;
         --text-dim: #9494B8;
-        --glass-bg: rgba(15, 15, 25, 0.7);
+        --card-bg: #161B22;
+        --card-border: #30363D;
     }
 
-    html, body {
-        font-size: 18px !important;
-    }
 
-    [class*="css"] {
-        font-family: 'Outfit', sans-serif;
+
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif !important;
+        background-color: var(--bg-dark);
         color: var(--text-main);
-        font-size: 1.1rem !important;
     }
 
-    .stApp {
-        background: #05050A;
-        background-attachment: fixed;
+    /* Global Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: var(--bg-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+        background: var(--card-border);
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary);
     }
 
-    /* Professional Glassmorphism */
-    .stat-card {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid var(--card-border);
-        border-radius: 20px;
-        padding: 24px;
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        position: relative;
-        overflow: hidden;
+    /* Fix White Table Issue - Large Dataset Glide Grid Fix */
+    div[data-testid="stDataFrame"], 
+    div.stDataFrame,
+    div[data-testid="stDataFrame"] [data-testid="stTable"] {
+        background-color: var(--card-bg) !important;
+    }
+
+    /* Force the internal Glide components to show the background */
+    div[data-testid="stDataFrame"] [role="grid"],
+    div[data-testid="stDataFrame"] [role="presentation"] {
+        background-color: var(--card-bg) !important;
+    }
+
+    /* Target the actual host element of the Glide Grid for large datasets */
+    div[data-testid="stDataFrame"] > div:first-child {
+        background-color: var(--card-bg) !important;
+    }
+    
+    /* Ensure the wrapper doesn't have a white background */
+    /* Dataframe Inner Styling */
+    .stDataFrame [data-testid="stTable"] {
+        background-color: var(--card-bg) !important;
+    }
+
+    /* Professional Table Refinement */
+    [data-testid="stDataFrame"], .stDataFrame, table {
+        font-size: 1.2rem !important;
+    }
+    
+    [data-testid="stDataFrame"] th, th {
+        font-size: 1.2rem !important;
+        font-weight: 700 !important;
+    }
+
+
+
+
+    /* Sidebar Styling - Distinct Graphite Look */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #080808 0%, #000000 100%) !important;
+        border-right: 2px solid rgba(255, 75, 75, 0.2);
+        box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+    }
+
+    
+    /* Soften sidebar content for the fade effect */
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] span {
+        opacity: 0.7;
+    }
+
+    
+    /* Slightly fade the labels within the sidebar for a sophisticated look */
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+        opacity: 0.85;
+    }
+
+
+
+
+    /* Remove gap above News Finder */
+    [data-testid="stSidebar"] section[data-testid="stSidebarContent"] > div {
+        padding-top: 1rem !important;
+    }
+
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1 {
+        font-size: 2.4rem !important;
+        font-weight: 800 !important;
+        color: var(--primary) !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         text-align: center;
-        margin-bottom: 16px;
+        gap: 12px;
+        margin-bottom: 0px !important;
     }
 
-    .stat-card:hover {
-        transform: translateY(-5px);
-        border-color: rgba(43, 210, 255, 0.3);
-        background: rgba(43, 210, 255, 0.05);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 15px rgba(43, 210, 255, 0.1);
+
+
+
+
+    [data-testid="stSidebar"] .stCaption {
+        color: #808495;
+        font-size: 0.95rem !important;
+        font-weight: 500;
+        margin-bottom: 2rem !important;
     }
 
-    .stat-value {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 2.6rem;
-        font-weight: 800;
-        color: var(--primary);
-        letter-spacing: -1.5px;
-        filter: drop-shadow(0 0 12px rgba(43, 210, 255, 0.4));
+    /* Premium Radio Navigation */
+    div[data-testid="stRadio"] > div {
+        gap: 12px;
+        padding: 0 5px;
+    }
+    
+    div[data-testid="stRadio"] label {
+        background: transparent !important;
+        border-radius: 10px !important;
+        padding: 10px 15px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid transparent !important;
+        margin-bottom: 4px;
+        cursor: pointer;
+        display: flex !important;
+        align-items: center;
     }
 
-    .stat-label {
-        font-size: 0.9rem;
-        color: var(--text-dim);
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        font-weight: 700;
-        margin-top: 8px;
+    div[data-testid="stRadio"] label:hover {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
     }
 
-    .section-title {
-        font-size: 2.6rem;
-        font-weight: 800;
-        color: #FFFFFF;
-        margin-top: 2rem;
-        margin-bottom: 0.5rem;
-        letter-spacing: -1px;
+    /* Active Radio Item - Using :has for precision */
+    div[data-testid="stRadio"] label:has(input:checked) {
+        background: linear-gradient(90deg, rgba(255, 75, 75, 0.15), transparent) !important;
+        border-left: 4px solid var(--primary) !important;
+        color: var(--primary) !important;
     }
 
-    .section-subtitle {
-        color: var(--text-dim);
-        font-size: 1.15rem;
-        margin-bottom: 2rem;
-        font-weight: 400;
+    div[data-testid="stRadio"] label p {
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        color: inherit !important;
+        margin: 0 !important;
     }
 
-    [data-testid="stSidebar"] {
-        background: #05050A !important;
-        backdrop-filter: blur(25px);
-        border-right: 1px solid var(--card-border);
+    /* Hide the radio circle and its container */
+    div[data-testid="stRadio"] input, 
+    div[data-testid="stRadio"] div[role="radiogroup"] div[data-testid="stMarkdownContainer"] ~ div {
+        display: none !important;
     }
-
-    [data-testid="stSidebar"] {
-        background: #05050A !important;
-        backdrop-filter: blur(25px);
-        border-right: 1px solid var(--card-border);
+    
+    /* Re-show the label text which might have been hidden by the broad selector above */
+    div[data-testid="stRadio"] label p {
+        display: block !important;
     }
-
-    [data-testid="stSidebar"] section::-webkit-scrollbar {
-        display: none;
-    }
-
-    [data-testid="stSidebar"] .stMarkdown h1 {
-        background: linear-gradient(135deg, #2BD2FF, #BAFF29);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 1.5rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-    }
-    .stButton > button {
-        background: linear-gradient(135deg, var(--secondary) 0%, #4D00B0 100%);
-        color: white;
-        border: none;
-        padding: 0.85rem 1.6rem;
-        border-radius: 14px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        font-size: 1rem;
-        width: 100%;
-    }
-
+    
+    /* Primary Button Styling - RED */
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, var(--primary) 0%, #0089FF 100%);
-        color: #05050A;
+        width: 100%;
+        background: linear-gradient(135deg, var(--primary), #FF1F1F) !important;
+        color: white !important;
+        border: none !important;
+        padding: 0.85rem 1rem !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 4px 15px rgba(255, 75, 75, 0.2);
+    }
+
+    /* Secondary Button Styling - GLASS/DARK */
+    .stButton > button[kind="secondary"] {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: var(--text-main) !important;
+        border: 1px solid var(--card-border) !important;
+        padding: 0.85rem 1rem !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    /* Load Cached Data - Teal Blue */
+    .load-btn-wrap .stButton > button {
+        background: linear-gradient(135deg, #1a6b8a, #0e4d6b) !important;
+        color: white !important;
+        border: none !important;
+        padding: 0.85rem 1rem !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        width: 100% !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 4px 15px rgba(26, 107, 138, 0.3) !important;
+    }
+    .load-btn-wrap .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(26, 107, 138, 0.4) !important;
     }
 
     .stButton > button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(112, 0, 255, 0.4);
-        opacity: 0.9;
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.05);
     }
 
-    .gradient-text-warm {
-        background: linear-gradient(135deg, #2BD2FF, #BAFF29);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+
+    /* Glassmorphism Stat Cards */
+    .stat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary);
+        box-shadow: 0 8px 24px rgba(255, 75, 75, 0.1);
     }
 
-    /* Hide standard Streamlit elements for a cleaner look */
-    header { visibility: hidden; }
-    #MainMenu { visibility: hidden; }
-    footer { visibility: hidden; }
+    .stat-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 2rem !important;
+        font-weight: 800 !important;
+        color: var(--primary);
+        line-height: 1.2;
+    }
+
+    .stat-label {
+        font-size: 0.85rem !important;
+        color: var(--text-dim);
+        font-weight: 500;
+        margin-top: 5px;
+    }
+
 
     /* Tabs Styling */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: rgba(255, 255, 255, 0.03);
-        padding: 6px 12px;
-        border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        margin-bottom: 2rem;
-        margin-top: 1rem;
+        gap: 24px;
+        border-bottom: 1px solid var(--card-border);
     }
 
     .stTabs [data-baseweb="tab"] {
-        height: 45px;
-        background-color: transparent !important;
-        border-radius: 30px !important;
-        border: none !important;
+        height: 50px;
         color: var(--text-dim) !important;
-        font-weight: 700 !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        padding: 0 24px !important;
-        margin-right: 4px;
-    }
-
-    .stTabs [data-baseweb="tab"]:hover {
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        color: var(--text-main) !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        background-color: transparent !important;
+        border: none !important;
     }
 
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #FF4B4B 0%, #FF2B5E 100%) !important;
-        color: white !important;
-        box-shadow: 0 4px 15px rgba(255, 75, 75, 0.4) !important;
+        color: var(--primary) !important;
+        border-bottom: 3px solid var(--primary) !important;
     }
 
-    .stTabs [aria-selected="true"] p {
-        color: white !important;
-        font-weight: 800 !important;
+    /* Target the tab content specifically */
+    [data-baseweb="tab-panel"], [data-testid="stTab"] {
+        background-color: transparent !important;
+        border: none !important;
     }
 
-    /* Remove the default underline */
-    .stTabs [data-baseweb="tab-highlight"] {
-        display: none !important;
-    }
 
-    /* Custom Tables Styling */
-    .stDataFrame {
-        border: 1px solid var(--card-border);
+    /* Custom Warning Card */
+    .warning-card {
+        background: rgba(255, 75, 75, 0.05);
+        border: 1px solid rgba(255, 75, 75, 0.2);
         border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 1rem 0;
     }
 
-    /* Input Fields */
-    .stTextInput > div > div > input {
-        background: rgba(255,255,255,0.03) !important;
-        border: 1px solid var(--card-border) !important;
-        border-radius: 10px !important;
-        color: white !important;
+    /* Section Titles */
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        color: var(--text-main);
+    }
+    
+    .section-subtitle {
+        font-size: 1.1rem;
+        color: var(--text-dim);
+        margin-bottom: 2rem;
+    }
+
+    /* Hide default streamlit elements */
+    header { visibility: hidden !important; }
+    footer { visibility: hidden !important; }
+    #MainMenu { visibility: hidden !important; }
+
+    /* Custom Separator */
+    .custom-hr {
+        border: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--card-border), transparent);
+        margin: 2.5rem 0;
     }
 </style>
 """,
@@ -267,8 +385,6 @@ def parse_ts(pub_str):
 
 
 def render_frontend_table(df, key, column_config=None, filename="data.csv", hide_controls=False):
-    import base64
-    
     # ---- SESSION STATE ----
     search_key = f"{key}_search"
     view_key = f"{key}_view"
@@ -282,41 +398,52 @@ def render_frontend_table(df, key, column_config=None, filename="data.csv", hide
     filtered_df = df.copy()
     if st.session_state[search_key]:
         query = st.session_state[search_key].lower()
-        filtered_df = df[df.astype(str).apply(lambda row: row.str.lower().str.contains(query).any(), axis=1)]
+        # Vectorized search is faster than apply(lambda)
+        mask = df.astype(str).apply(lambda x: x.str.lower().str.contains(query, na=False)).any(axis=1)
+        filtered_df = df[mask]
 
-    # ---- DOWNLOAD CSV ----
-    csv = filtered_df.to_csv(index=False).encode('utf-8')
-    b64 = base64.b64encode(csv).decode()
 
-    # ---- UI HEADER ----
-    pass
+    # ---- CONTROLS ----
+    if not hide_controls:
+        col1, col2 = st.columns([6, 1])
+        with col2:
+            # Only generate CSV if needed or cache it. 
+            # Generating on every run is expensive.
+            if len(filtered_df) > 0:
+                @st.cache_data(ttl=600)
+                def convert_df(df_to_save):
+                    return df_to_save.to_csv(index=False).encode('utf-8')
+                
+                csv_data = convert_df(filtered_df)
+                st.download_button(
+                    label="CSV",
+                    data=csv_data,
+                    file_name=filename,
+                    mime='text/csv',
+                    use_container_width=True,
+                    key=f"{key}_dl"
+                )
 
-    # ---- SEARCH INPUT REMOVED ----
-    pass
 
-    # ---- VIEW TOGGLE ----
-    # Account for custom CSS 18px font size when calculating height
-    dynamic_height = (len(filtered_df) + 1) * 45 + 50
-    if dynamic_height < 200: dynamic_height = 200 # Minimum height for header and a couple rows
+    # ---- TABLE RENDERING ----
+    row_height = 50
+    calculated_height = (len(filtered_df) + 1) * row_height + 60
 
-    if st.session_state[view_key] == "table":
-        st.dataframe(
-            filtered_df,
-            use_container_width=True,
-            hide_index=True,
-            column_config=column_config,
-            key=key,
-            height=dynamic_height,
-        )
-    else:
-        st.data_editor(
-            filtered_df,
-            use_container_width=True,
-            hide_index=True,
-            column_config=column_config,
-            key=f"{key}_editor",
-            height=dynamic_height,
-        )
+
+
+    dynamic_height = min(calculated_height, 600)
+    if dynamic_height < 200: dynamic_height = 200
+
+    st.dataframe(
+        filtered_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config=column_config,
+        key=key,
+        height=dynamic_height,
+    )
+
+
 
 
 def get_filters(key_prefix, include_hours=False):
@@ -325,63 +452,54 @@ def get_filters(key_prefix, include_hours=False):
         col1, col2, col3 = st.columns(3)
         with col1:
             today = datetime.date.today()
-            date_range = st.date_input("Date Range", value=(today - datetime.timedelta(days=DEFAULT_DAYS_BACK), today), key=f"{key_prefix}_date")
+            date_range = st.date_input(
+                "Date Range", 
+                value=(today, today), 
+                max_value=today,
+                key=f"{key_prefix}_date"
+            )
+            # Normalize: if same-day is selected, Streamlit may return a single date
+            if isinstance(date_range, datetime.date) and not isinstance(date_range, tuple):
+                date_range = (date_range, date_range)
+            elif isinstance(date_range, (list, tuple)) and len(date_range) == 1:
+                date_range = (date_range[0], date_range[0])
+
         with col2:
             all_sources = ["All"] + list(COMPETITORS.keys())
             source = st.selectbox("Source", all_sources, key=f"{key_prefix}_source")
         with col3:
             if include_hours:
-                lookback = st.number_input("Last - Hours", min_value=1, max_value=168, value=4, key=f"{key_prefix}_hours")
-                return date_range, source, lookback
+                lookback = st.number_input("Last - Min", min_value=1, max_value=1440, value=60, key=f"{key_prefix}_min")
+    if include_hours:
+        return date_range, source, lookback
     return date_range, source
 
 
+
+# ---- SIDEBAR REFINED COMPOSITION ----
 with st.sidebar:
-    st.markdown("# 📰 News Finder")
-    st.caption("Competitor Analysis")
+    st.markdown("# News Finder")
     
-    freshness = get_data_freshness()
-    if not freshness:
-        st.warning("⚠️ No data loaded yet.")
-    else:
-        try:
-            import pandas as pd
-            dt_utc = pd.to_datetime(freshness, utc=True)
-            now_utc = pd.Timestamp.now(tz="UTC")
-            diff = now_utc - dt_utc
-            seconds = int(diff.total_seconds())
-            if seconds < 60: time_str = "Just now"
-            elif seconds < 3600: time_str = f"{seconds // 60} mins ago"
-            elif seconds < 86400: time_str = f"{seconds // 3600} hrs ago"
-            else: time_str = f"{seconds // 86400} days ago"
-            
-            st.markdown(f'<div style="font-size: 0.75rem; color: #2BD2FF; background: rgba(43, 210, 255, 0.1); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(43, 210, 255, 0.2); font-weight: 600;">💾 Updated {time_str}</div>', unsafe_allow_html=True)
-            
-            _arts = st.session_state.get("articles", [])
-            if not _arts:
-                _arts = load_articles()
-            if _arts:
-                _dates = [pd.to_datetime(a.get("published_at"), utc=True, errors="coerce") for a in _arts]
-                _dates = [d for d in _dates if pd.notna(d)]
-                if _dates:
-                    min_dt = min(_dates).strftime("%d %b %H:%M")
-                    max_dt = max(_dates).strftime("%d %b %H:%M")
-                    st.markdown(f'<div style="font-size: 0.75rem; color: #BAFF29; background: rgba(186, 255, 41, 0.1); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(186, 255, 41, 0.2); font-weight: 600; margin-top: 8px; text-align: center;">⏳ {min_dt} - {max_dt}</div>', unsafe_allow_html=True)
-        except Exception:
-            st.caption(f"💾 Freshness: {freshness}")
+    # Placeholder container for Status/Range (to appear after title)
+    status_range_container = st.container()
     
-    st.divider()
+    st.markdown('<hr class="custom-hr">', unsafe_allow_html=True)
+    
     page = st.radio(
-        "Navigate",
+        "Navigation",
         [PAGE_COVERAGE, PAGE_DUPLICATES, PAGE_DATE_WISE, PAGE_LATEST],
         label_visibility="collapsed",
     )
-    st.divider()
     
-    fetch_btn = st.button("🚀 Fetch & Analyze", use_container_width=True, type="primary")
-    load_btn = st.button("📂 Load Cached Data", use_container_width=True)
+    st.markdown('<hr class="custom-hr">', unsafe_allow_html=True)
+    
+    fetch_btn = st.button("Fetch Fresh Data", width="stretch", type="primary")
+    st.markdown('<div class="load-btn-wrap">', unsafe_allow_html=True)
+    load_btn = st.button("Load Cached Data", width="stretch")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
+# ---- DATA INITIALIZATION ----
 if fetch_btn:
     with st.status("🚀 Processing Competitor Scans...", expanded=True) as status:
         all_articles = fetch_all_competitors(hours=DEFAULT_DAYS_BACK * 24)
@@ -404,6 +522,55 @@ if load_btn or ("articles" not in st.session_state):
 
 articles = st.session_state.get("articles", [])
 analysis = st.session_state.get("analysis", {})
+
+
+with status_range_container:
+    # -- SEPARATE STATUS CARDS --
+    freshness = get_data_freshness()
+    if freshness:
+
+        try:
+            dt_utc = pd.to_datetime(freshness, utc=True)
+            now_utc = pd.Timestamp.now(tz="UTC")
+            diff = now_utc - dt_utc
+            seconds = int(diff.total_seconds())
+            if seconds < 60: time_str = "Now"
+            elif seconds < 3600: time_str = f"{seconds // 60}m"
+            elif seconds < 86400: time_str = f"{seconds // 3600}h"
+            else: time_str = f"{seconds // 86400}d"
+            
+            st.markdown(f'''
+                <div style="font-size: 0.9rem; color: #FF4B4B; background: rgba(255, 255, 255, 0.05); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255, 75, 75, 0.3); font-weight: 700; margin-bottom: 10px; text-align: center;">
+                    ⚡ Updated: {time_str} ago
+                </div>
+            ''', unsafe_allow_html=True)
+        except: pass
+            
+    if articles:
+        @st.cache_data(ttl=300)
+        def get_ts_range(arts):
+            all_ts = [parse_ts(a.get("published_at")) for a in arts if parse_ts(a.get("published_at"))]
+            if all_ts:
+                return min(all_ts), max(all_ts)
+            return None, None
+            
+        min_ts, max_ts = get_ts_range(articles)
+        if min_ts and max_ts:
+            st.markdown(f'''
+                <div style="font-size: 0.85rem; color: #FF4B4B; background: rgba(255, 255, 255, 0.05); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255, 75, 75, 0.3); font-weight: 700; text-align: center;">
+                    📅 {min_ts.strftime('%d %b %#I:%M%p').lower()} - {max_ts.strftime('%d %b %#I:%M%p').lower()}
+                </div>
+            ''', unsafe_allow_html=True)
+
+
+
+
+
+
+
+
+
+
 
 if not articles:
     st.markdown('<div style="text-align:center; padding:150px 20px;"><div style="font-size:6rem; margin-bottom:32px;">📡</div><h3>Initialize Dataset</h3><p>Click Fetch or Load to begin.</p></div>', unsafe_allow_html=True)
@@ -504,7 +671,7 @@ if page == PAGE_COVERAGE:
             
             for i in range(0, num_channels, cols_per_row):
                 row_channels = podium_list[i:i + cols_per_row]
-                row_cols = st.columns(cols_per_row)
+                row_cols = st.columns(cols_per_row, gap="large")
                 
                 for idx, (ch, a) in enumerate(row_channels):
                     total_idx = i + idx
@@ -517,19 +684,23 @@ if page == PAGE_COVERAGE:
                     with row_cols[idx]:
                         story_count = channel_story_count.get(ch, 0)
                         st.markdown(
-                            f"""<div class="stat-card" style="border-color:{medal_color};border-width:2px; height:100%;">
-                            <div class="stat-value" style="font-size:2.2rem;">{medal_icon}</div>
-                            <div class="stat-value gradient-text-warm" style="font-size:1rem;margin-top:6px;">{ch}</div>
-                            <div class="stat-label" style="margin-top:6px;">{ts.strftime('%H:%M, %d %b') if ts else 'N/A'}</div>
-                            <div class="stat-label">{format_time_gap(delay_seconds)}</div>
-                            <div class="stat-label">📰 {story_count} {'story' if story_count == 1 else 'stories'}</div>
+                            f"""<div class="stat-card" style="border-color:{medal_color}; border-width:2px; height:100%; padding: 18px; margin-bottom: 20px;">
+                                <div class="stat-value" style="font-size:1.8rem;">{medal_icon}</div>
+                                <div class="stat-label" style="color:var(--primary); font-size:1rem; font-weight:800; margin-top:8px;">{ch}</div>
+                                <div class="stat-label" style="font-size:0.8rem; margin-top:4px;">{ts.strftime('%H:%M, %d %b') if ts else 'N/A'}</div>
+                                <div class="stat-label" style="font-size:0.85rem; font-weight:700; color:var(--text-main);">{format_time_gap(delay_seconds)}</div>
+                                <div class="stat-label" style="font-size:0.8rem; opacity:0.8;">📰 {story_count} stories</div>
                             </div>""",
                             unsafe_allow_html=True,
                         )
 
-            st.markdown("---")
 
+            # Add Space between cards and table
+            st.markdown('<div style="margin-top: 25px;"></div>', unsafe_allow_html=True)
+
+            st.markdown("---")
             st.markdown("### ⏱ Full Coverage Timeline")
+
 
             timeline_rows = []
             for rank, (ch, a) in enumerate(podium_list, start=1):
@@ -543,8 +714,9 @@ if page == PAGE_COVERAGE:
                     "Published At": ts.strftime("%Y-%m-%d %H:%M") if ts else "N/A",
                     "Time Gap": delay_str,
                     "Stories": channel_story_count.get(ch, 0),
-                    "Title": a.get("title", "")[:80],
+                    "Title": a.get("title", ""),
                     "URL": a.get("url", ""),
+
                 })
 
             timeline_df = pd.DataFrame(timeline_rows)
@@ -554,7 +726,8 @@ if page == PAGE_COVERAGE:
                 filename="coverage_timeline.csv",
                 column_config={
                     "URL": st.column_config.LinkColumn("Link", display_text="Open"),
-                }
+                },
+                hide_controls=True
             )
 
             st.markdown("---")
@@ -583,8 +756,10 @@ if page == PAGE_COVERAGE:
                 filename="chronological_feed.csv",
                 column_config={
                     "URL": st.column_config.LinkColumn("Link", display_text="Open"),
-                }
+                },
+                hide_controls=True
             )
+
 
 elif page == PAGE_DUPLICATES:
     st.markdown('<div class="section-title">🔁 Duplicate Content</div>', unsafe_allow_html=True)
@@ -594,10 +769,25 @@ elif page == PAGE_DUPLICATES:
     filter_col1, filter_col2 = st.columns(2)
     with filter_col1:
         today = dt.date.today()
-        local_date_range = st.date_input("Date Range", value=(today - dt.timedelta(days=DEFAULT_DAYS_BACK), today), key="dup_date")
+        local_date_range = st.date_input(
+            "Date Range", 
+            value=(today, today), 
+            max_value=today,
+            key="dup_date"
+        )
+        # Normalize single-date return when start == end
+        if isinstance(local_date_range, dt.date) and not isinstance(local_date_range, tuple):
+            local_date_range = (local_date_range, local_date_range)
+        elif isinstance(local_date_range, (list, tuple)) and len(local_date_range) == 1:
+            local_date_range = (local_date_range[0], local_date_range[0])
+
     with filter_col2:
         all_sources = ["All"] + list(COMPETITORS.keys())
         local_source = st.selectbox("Source", all_sources, key="dup_source")
+
+
+
+
 
     st.markdown("---")
 
@@ -626,6 +816,9 @@ elif page == PAGE_DUPLICATES:
             if not ((cov_start <= date1 <= cov_end) or (cov_start <= date2 <= cov_end)):
                 continue
 
+
+        filtered_pairs.append(pair)
+
         filtered_pairs.append(pair)
 
     filtered_pairs.sort(key=lambda p: p.get("similarity_score", 0), reverse=True)
@@ -638,28 +831,31 @@ elif page == PAGE_DUPLICATES:
         ts1 = parse_ts(a1.get("published_at", ""))
         ts2 = parse_ts(a2.get("published_at", ""))
 
-        key1 = a1.get("title", "")[:50]
-        key2 = a2.get("title", "")[:50]
-        topic_key = min(key1, key2)
+        # Grouping by a slightly more robust key but keeping full titles for group identification
+        key1 = a1.get("title", "").strip()
+        key2 = a2.get("title", "").strip()
+        
+        # We'll use the shorter title as the dictionary key to group them, 
+        # but we'll collect the full titles to pick the best one later.
+        topic_key = min(key1[:100], key2[:100]) 
 
         if topic_key not in topic_groups:
-            topic_groups[topic_key] = []
+            topic_groups[topic_key] = {"items": [], "full_titles": []}
+
+        topic_groups[topic_key]["full_titles"].extend([key1, key2])
 
         if ts1 and ts2:
-            if ts1 < ts2:
-                time_gap = (ts2 - ts1).total_seconds()
-            else:
-                time_gap = (ts1 - ts2).total_seconds()
+            time_gap = abs((ts2 - ts1).total_seconds())
         else:
             time_gap = 0
 
-        topic_groups[topic_key].append({
+        topic_groups[topic_key]["items"].append({
             "article": a1,
             "ts": ts1,
             "time_gap": time_gap,
             "similarity": pair["similarity_score"],
         })
-        topic_groups[topic_key].append({
+        topic_groups[topic_key]["items"].append({
             "article": a2,
             "ts": ts2,
             "time_gap": time_gap,
@@ -667,7 +863,11 @@ elif page == PAGE_DUPLICATES:
         })
 
     grouped_results = []
-    for topic, items in topic_groups.items():
+    for t_key, group_data in topic_groups.items():
+        items = group_data["items"]
+        # Find the longest/best title from all candidates
+        best_topic = max(group_data["full_titles"], key=len) if group_data["full_titles"] else t_key
+        
         unique_articles = {}
         for item in items:
             art = item["article"]
@@ -680,16 +880,20 @@ elif page == PAGE_DUPLICATES:
             key=lambda x: x[1]["ts"]
         )
 
+
         if len(sorted_articles) > 1:
+
+
             first_ts = sorted_articles[0][1]["ts"]
             story_score = max(d["similarity"] for _, d in sorted_articles)
             grouped_results.append({
-                "topic": topic,
+                "topic": best_topic,
                 "publishers": sorted_articles,
                 "first_ts": first_ts,
                 "count": len(sorted_articles),
                 "story_score": story_score,
             })
+
 
     grouped_results.sort(key=lambda x: x["story_score"], reverse=True)
 
@@ -708,29 +912,28 @@ elif page == PAGE_DUPLICATES:
 
             st.markdown(
                 f"""
-                <div class="stat-card" style="text-align: left; padding: 20px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <span style="background: linear-gradient(135deg, var(--secondary), var(--accent)); color: white; font-weight: 800; font-size: 1.2rem; padding: 10px 16px; border-radius: 12px; min-width: 60px; text-align: center; box-shadow: 0 4px 15px rgba(112, 0, 255, 0.3);">
+                <div class="stat-card" style="text-align: left; padding: 18px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items:center; justify-content: space-between; flex-wrap: nowrap; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 20px; flex: 1; min-width: 0;">
+                            <span style="background: linear-gradient(135deg, var(--card-border), var(--primary)); color: white; font-weight: 800; font-size: 1.1rem; padding: 8px 16px; border-radius: 12px; min-width: 50px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); flex-shrink: 0;">
                                 #{g_idx}
                             </span>
-                            <div>
-                                <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">{group['topic']}</div>
-                                <div style="font-size: 0.9rem; color: var(--text-dim);">📡 Intelligence gathered from {group['count']} competitor sources</div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px; white-space: normal; overflow: visible;">{group['topic']}</div>
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <div style="background: rgba(0, 242, 255, 0.1); border: 1px solid var(--primary); padding: 8px 16px; border-radius: 30px;">
-                                <span style="color: var(--primary); font-weight: 800; font-size: 0.9rem;">
-                                    ANALYSIS SCORE: {max_sim:.1%}
-                                </span>
-                            </div>
+                        <div style="background: rgba(255, 75, 75, 0.1); border: 1px solid rgba(255, 75, 75, 0.3); padding: 6px 14px; border-radius: 30px; flex-shrink: 0;">
+                            <span style="color: var(--primary); font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px;">
+                                ANALYSIS SCORE: {max_sim:.1%}
+                            </span>
                         </div>
                     </div>
                 </div>
+
                 """,
                 unsafe_allow_html=True,
             )
+
 
             cols_per_row = min(group["count"], 7)
             row_cols = st.columns(cols_per_row)
@@ -744,17 +947,21 @@ elif page == PAGE_DUPLICATES:
 
                 with row_cols[p_idx]:
                     st.markdown(
-                        f"""<div class="stat-card" style="border-color:{medal_color}; border-width:2px; padding:16px;">
+                        f"""<div class="stat-card" style="border-color:{medal_color}; border-width:2px; padding:16px; height:100%;">
                         <div class="stat-value" style="font-size:1.8rem;">{medal_icon}</div>
-                        <div class="stat-label" style="color:var(--primary); font-size:0.8rem; margin-top:8px;">{source}</div>
+                        <div class="stat-label" style="color:var(--primary); font-size:0.8rem; font-weight:800; margin-top:8px;">{source}</div>
                         <div style="font-size:0.75rem; color:var(--text-dim); margin-top:4px;">{ts.strftime('%H:%M, %d %b') if ts else 'N/A'}</div>
-                        <div style="font-size:0.85rem; font-weight:600; color:var(--text-main); margin-top:4px;">{format_time_gap(delay_seconds)}</div>
+                        <div style="font-size:0.85rem; font-weight:700; color:var(--text-main); margin-top:4px;">{format_time_gap(delay_seconds)}</div>
                         </div>""",
                         unsafe_allow_html=True,
                     )
 
+            # Add Space between cards and table
+            st.markdown('<div style="margin-top: 25px;"></div>', unsafe_allow_html=True)
+
             publishers_data = []
             for rank, (source, data) in enumerate(group["publishers"], start=1):
+
                 art = data["article"]
                 ts = data["ts"]
                 delay_seconds = (ts - group["first_ts"]).total_seconds() if ts and group["first_ts"] else 0
@@ -764,8 +971,9 @@ elif page == PAGE_DUPLICATES:
                     "Published At": ts.strftime("%Y-%m-%d %H:%M") if ts else "N/A",
                     "Time Gap": format_time_gap(delay_seconds),
                     "Duplicate Score": f"{data['similarity']:.1%}",
-                    "Title": art.get("title", "")[:60],
+                    "Title": art.get("title", ""),
                     "URL": art.get("url", ""),
+
                 })
 
             publisher_df = pd.DataFrame(publishers_data)
@@ -818,56 +1026,35 @@ elif page == PAGE_DUPLICATES:
         )
 
 elif page == PAGE_DATE_WISE:
-    st.markdown('<div class="section-title">📅 Date-wise Story Count</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">📊 Raw Data</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-subtitle">Chronological distribution of content volume across all monitored channels.</div>', unsafe_allow_html=True)
 
     import datetime as dt
     filter_col1, filter_col2 = st.columns(2)
     with filter_col1:
         today = dt.date.today()
-        local_date_range = st.date_input("Date Range", value=(today - dt.timedelta(days=DEFAULT_DAYS_BACK), today), key="date_wise_date")
+        local_date_range = st.date_input("Date Range", value=(today, today), key="date_wise_date")
+        # Normalize single-date return when start == end
+        if isinstance(local_date_range, dt.date) and not isinstance(local_date_range, tuple):
+            local_date_range = (local_date_range, local_date_range)
+        elif isinstance(local_date_range, (list, tuple)) and len(local_date_range) == 1:
+            local_date_range = (local_date_range[0], local_date_range[0])
     with filter_col2:
         all_sources = ["All"] + list(COMPETITORS.keys())
         local_source = st.selectbox("Source", all_sources, key="date_wise_source")
 
-    # ---- Scoreboard Logic ----
-    cov_start, cov_end = local_date_range if (local_date_range and len(local_date_range) == 2) else (None, None)
-    
-    from collections import defaultdict
-    sb_counts = defaultdict(int)
-    total_count = 0
-    
-    for a in articles:
-        ts = parse_ts(a.get("published_at", ""))
-        if not ts: continue
-        if cov_start and cov_end and not (cov_start <= ts.date() <= cov_end):
-            continue
-        sb_counts[a.get("source", "Unknown")] += 1
-        total_count += 1
-        
-    sb_cards_html = f'''
-    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px; margin-bottom: 20px;">
-        <div style="flex: 1 1 120px; background: linear-gradient(135deg, rgba(10,10,15,0.95), rgba(15,15,22,0.95)); border: 1px solid rgba(43,210,255,0.3); border-radius: 12px; padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: center;">
-            <div style="font-size: 1.8rem; font-weight: 800; color: #2BD2FF; line-height: 1;">{total_count}</div>
-            <div style="font-size: 0.70rem; color: #9898b0; font-weight: 700; text-transform: uppercase; margin-top: 6px;">All Channels</div>
-        </div>
-    '''
-    for comp in sorted(COMPETITORS.keys()):
-        val = sb_counts.get(comp, 0)
-        sb_cards_html += f'''
-        <div style="flex: 1 1 120px; background: linear-gradient(135deg, rgba(10,10,15,0.95), rgba(15,15,22,0.95)); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: center;">
-            <div style="font-size: 1.8rem; font-weight: 800; color: #f0f0f5; line-height: 1;">{val}</div>
-            <div style="font-size: 0.70rem; color: #9898b0; font-weight: 700; text-transform: uppercase; margin-top: 6px;">{comp.replace(" Gujarati", "")}</div>
-        </div>
-        '''
-    sb_cards_html += '</div>'
-    st.markdown(sb_cards_html, unsafe_allow_html=True)
+
+
+    # ---- Filtered Articles for Pivot Table ----
 
     filtered_articles = []
     for a in articles:
         ts = parse_ts(a.get("published_at", ""))
         if not ts:
             continue
+            
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
         
         if local_source != "All" and a.get("source") != local_source:
             continue
@@ -878,6 +1065,9 @@ elif page == PAGE_DATE_WISE:
             cov_start, cov_end = local_date_range
             if not (cov_start <= article_date <= cov_end):
                 continue
+
+
+
         
         filtered_articles.append(a)
 
@@ -924,8 +1114,9 @@ elif page == PAGE_DATE_WISE:
         def styler_func(s, pivot_df=pivot_df):
             is_total_row = pivot_df.index[pivot_df.index.get_indexer([s.index[0]])[0]] == "**Day Total**"
             if is_total_row:
-                return ['min-width: 120px; text-align: center; font-weight: bold; background: rgba(255,61,113,0.1);' for _ in s]
-            return ['min-width: 120px; text-align: center;' for _ in s]
+                return ['min-width: 130px; text-align: center; font-weight: bold; background: rgba(255,75,75,0.1); font-size: 1.2rem;' for _ in s]
+            return ['min-width: 130px; text-align: center; font-size: 1.2rem;' for _ in s]
+
 
         styler = pivot_df.style.apply(styler_func).set_properties(**{
             'text-align': 'center',
@@ -945,14 +1136,14 @@ elif page == PAGE_DATE_WISE:
 
 
 elif page == PAGE_LATEST:
-    st.markdown('<div class="section-title">⏱ Latest Articles</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">🏠 Dashboard</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-subtitle">Real-time feed of the most recently published content across all platforms.</div>', unsafe_allow_html=True)
     
-    local_date_range, local_source, lookback_hours = get_filters("latest_tab", include_hours=True)
+    local_date_range, local_source, lookback_min = get_filters("latest_tab", include_hours=True)
     
     from datetime import datetime, timedelta, timezone
     now = datetime.now(timezone.utc)
-    hour_threshold = now - timedelta(hours=lookback_hours)
+    min_threshold = now - timedelta(minutes=lookback_min)
     
     latest_articles = []
     start_date, end_date = local_date_range if (local_date_range and len(local_date_range) == 2) else (None, None)
@@ -977,7 +1168,7 @@ elif page == PAGE_LATEST:
                 continue
         
         if not start_date or start_date == now.date():
-             if ts < hour_threshold:
+             if ts < min_threshold:
                  continue
         
         latest_articles.append({
@@ -1007,7 +1198,8 @@ elif page == PAGE_LATEST:
                 column_config={
                     "URL": st.column_config.LinkColumn("Link", display_text="Open"),
                     "Title": st.column_config.TextColumn("Title", width="large"),
-                }
+                },
+                hide_controls=True
             )
         elif sources:
             all_count = len(latest_df)
@@ -1026,7 +1218,8 @@ elif page == PAGE_LATEST:
                     column_config={
                         "URL": st.column_config.LinkColumn("Link", display_text="Open"),
                         "Title": st.column_config.TextColumn("Title", width="large"),
-                    }
+                    },
+                    hide_controls=True
                 )
             
             for i, source in enumerate(sources):
@@ -1039,7 +1232,8 @@ elif page == PAGE_LATEST:
                         column_config={
                             "URL": st.column_config.LinkColumn("Link", display_text="Open"),
                             "Title": st.column_config.TextColumn("Title", width="large"),
-                        }
+                        },
+                        hide_controls=True
                     )
         else:
             st.warning("No articles categorized by source found.")
