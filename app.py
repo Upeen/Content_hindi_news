@@ -800,8 +800,8 @@ if page == PAGE_COVERAGE:
 
 
 elif page == PAGE_DATE_WISE:
-    st.markdown('<div class="section-title">📊 Raw Data</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-subtitle">Chronological distribution of content volume across all monitored channels.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">📊 Raw Article Feed</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-subtitle">Comprehensive overview of article distribution and raw metadata.</div>', unsafe_allow_html=True)
 
     import datetime as dt
     filter_col1, filter_col2 = st.columns(2)
@@ -901,11 +901,87 @@ elif page == PAGE_DATE_WISE:
 
         pivot_height = (len(pivot_df) + 1) * 45 + 50
 
-        st.dataframe(
-            styler,
-            use_container_width=True,
-            height=pivot_height,
-        )
+        # ---- PAGE COMPOSITION: TABS AND TABLES ----
+        
+        sources_present = sorted(pivot_df.index.tolist())
+        if "**Day Total**" in sources_present: sources_present.remove("**Day Total**")
+        
+        # Prepare tab names with counts
+        all_total = pivot_df.loc["**Day Total**", "Total"] if "**Day Total**" in pivot_df.index else 0
+        tab_titles = [f"All Sources ({all_total})"]
+        for s in sources_present:
+            s_total = pivot_df.loc[s, "Total"] if s in pivot_df.index else 0
+            tab_titles.append(f"{s} ({s_total})")
+            
+        tabs = st.tabs(tab_titles)
+        
+        # We render the summary and the feed within EACH tab, filtering the feed by source
+        for i, tab in enumerate(tabs):
+            with tab:
+                # Distribution Summary (only on the first tab as per screenshot, or all?)
+                # Screenshot shows it on "All Sources". Let's put it on all but highlight it.
+                st.markdown('<div class="section-title">📅 Content Distribution Summary</div>', unsafe_allow_html=True)
+                
+                # Filter pivot for single source if not on "All Sources"
+                if i == 0:
+                    display_pivot = styler
+                    display_height = pivot_height
+                else:
+                    src = sources_present[i-1]
+                    # Create a mini styler for just this row + day total
+                    mini_pivot = pivot_df.loc[[src, "**Day Total**"]]
+                    
+                    def mini_styler_func(s):
+                        if s.name == "**Day Total**":
+                            return ['min-width: 130px; text-align: center; font-weight: bold; background: rgba(255,75,75,0.1); font-size: 1.2rem;' for _ in s]
+                        return ['min-width: 130px; text-align: center; font-size: 1.2rem;' for _ in s]
+                        
+                    display_pivot = mini_pivot.style.apply(mini_styler_func, axis=1).set_properties(**{
+                        'text-align': 'center',
+                        'border': '1px solid rgba(255,255,255,0.05)',
+                    }).set_table_styles([
+                        {'selector': 'th', 'props': [('text-align', 'center'), ('padding', '8px'), ('background', 'rgba(10,10,15,0.95)')]},
+                        {'selector': 'td', 'props': [('padding', '8px')]},
+                    ])
+                    display_height = (len(mini_pivot) + 1) * 45 + 50
+
+                st.dataframe(
+                    display_pivot,
+                    use_container_width=True,
+                    height=display_height,
+                )
+                
+                st.markdown('<hr class="custom-hr">', unsafe_allow_html=True)
+                
+                # --- RAW FEED TABLE ---
+                st.markdown(f"### 📋 Raw Article Feed ({'All Sources' if i==0 else sources_present[i-1]})")
+                
+                # Prepare feed DF
+                feed_rows = []
+                for ts, a in filtered_articles:
+                    if i > 0 and a.get("source") != sources_present[i-1]:
+                        continue
+                    feed_rows.append({
+                        "Published At": ts.strftime("%Y-%m-%d %H:%M"),
+                        "Channel": a.get("source"),
+                        "Title": a.get("title"),
+                        "URL": a.get("url"),
+                        "Keywords": a.get("keywords")
+                    })
+                
+                if feed_rows:
+                    feed_df = pd.DataFrame(feed_rows).sort_values("Published At", ascending=False)
+                    render_frontend_table(
+                        feed_df,
+                        f"raw_feed_tab_{i}",
+                        filename=f"raw_feed_{'all' if i==0 else sources_present[i-1]}.csv",
+                        column_config={
+                            "URL": st.column_config.LinkColumn("Link", display_text="Open"),
+                            "Title": st.column_config.TextColumn("Title", width="large"),
+                        }
+                    )
+                else:
+                    st.info("No articles found for this selection.")
 
 
 elif page == PAGE_LATEST:

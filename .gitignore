@@ -28,3 +28,6 @@ Thumbs.db
 
 # Cache
 .cache/
+
+# Package install flag (local only, must not be committed)
+.packages_installed

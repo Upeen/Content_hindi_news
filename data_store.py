@@ -25,23 +25,38 @@ def save_articles(articles: List[Dict], filepath: str = JSON_STORE_FILE) -> str:
     """
     Save articles to JSON file with metadata.
     Overwrites previous data (each run is a fresh snapshot).
+    Deduplicates by URL before saving as a final safety net.
     """
     ensure_data_dir()
+
+    # Final safety-net deduplication by URL
+    seen: set = set()
+    unique_articles: List[Dict] = []
+    for article in articles:
+        url = article.get("url", "")
+        if url and url not in seen:
+            seen.add(url)
+            unique_articles.append(article)
+    if len(unique_articles) < len(articles):
+        logger.info(
+            f"save_articles: removed {len(articles) - len(unique_articles)} duplicate URLs "
+            f"before saving ({len(unique_articles)} unique)."
+        )
 
     data = {
         "metadata": {
             "fetched_at": datetime.now(timezone.utc).isoformat(),
-            "total_articles": len(articles),
-            "sources": list(set(a.get("source", "Unknown") for a in articles)),
+            "total_articles": len(unique_articles),
+            "sources": list(set(a.get("source", "Unknown") for a in unique_articles)),
         },
-        "articles": articles,
+        "articles": unique_articles,
     }
 
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     file_size = os.path.getsize(filepath)
-    logger.info(f"Saved {len(articles)} articles to {filepath} ({file_size / 1024:.1f} KB)")
+    logger.info(f"Saved {len(unique_articles)} articles to {filepath} ({file_size / 1024:.1f} KB)")
     return filepath
 
 

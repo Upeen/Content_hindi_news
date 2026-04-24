@@ -342,7 +342,16 @@ def fetch_competitor_articles(name: str, config: dict, cutoff_time: datetime) ->
                 logger.info(f"[{name}] Fetched: {date_url}")
                 articles = parse_news_sitemap(xml_content, name, cutoff_time)
                 all_articles.extend(articles)
-        return all_articles
+        # Deduplicate by URL within this source
+        seen = set()
+        unique = []
+        for a in all_articles:
+            u = a.get("url", "")
+            if u and u not in seen:
+                seen.add(u)
+                unique.append(a)
+        logger.info(f"[{name}] After dedup: {len(unique)} unique articles (was {len(all_articles)})")
+        return unique
     
     # Handle date-based URLs with query params like Jansatta: ?yyyy=2026&mm=04&dd=19
     if fetch_strategy == "date_query":
@@ -365,7 +374,16 @@ def fetch_competitor_articles(name: str, config: dict, cutoff_time: datetime) ->
                 logger.info(f"[{name}] Fetched: {date_url}")
                 articles = parse_news_sitemap(xml_content, name, cutoff_time)
                 all_articles.extend(articles)
-        return all_articles
+        # Deduplicate by URL within this source
+        seen = set()
+        unique = []
+        for a in all_articles:
+            u = a.get("url", "")
+            if u and u not in seen:
+                seen.add(u)
+                unique.append(a)
+        logger.info(f"[{name}] After dedup: {len(unique)} unique articles (was {len(all_articles)})")
+        return unique
     
     # Handle special cases like News18 Hindi with today/yesterday format
     if fetch_strategy == "special":
@@ -388,7 +406,16 @@ def fetch_competitor_articles(name: str, config: dict, cutoff_time: datetime) ->
                 logger.info(f"[{name}] Fetched: {date_url}")
                 articles = parse_news_sitemap(xml_content, name, cutoff_time)
                 all_articles.extend(articles)
-        return all_articles
+        # Deduplicate by URL within this source
+        seen = set()
+        unique = []
+        for a in all_articles:
+            u = a.get("url", "")
+            if u and u not in seen:
+                seen.add(u)
+                unique.append(a)
+        logger.info(f"[{name}] After dedup: {len(unique)} unique articles (was {len(all_articles)})")
+        return unique
     
     # Check if base URL contains placeholder for date-based URLs
     if "{date}" in base_url or "-{dd}-{mm}-{yyyy}" in base_url:
@@ -403,7 +430,11 @@ def fetch_competitor_articles(name: str, config: dict, cutoff_time: datetime) ->
             if xml_content:
                 articles = parse_news_sitemap(xml_content, name, cutoff_time)
                 all_articles.extend(articles)
-        return all_articles
+        # Deduplicate by URL within this source
+        seen = set()
+        unique = [a for a in all_articles if a.get("url") and a["url"] not in seen and not seen.add(a["url"])]
+        logger.info(f"[{name}] After dedup: {len(unique)} unique articles (was {len(all_articles)})")
+        return unique
     
     # Check for query param placeholders
     if "{yyyy}" in base_url or "{mm}" in base_url or "{dd}" in base_url:
@@ -417,7 +448,11 @@ def fetch_competitor_articles(name: str, config: dict, cutoff_time: datetime) ->
             if xml_content:
                 articles = parse_news_sitemap(xml_content, name, cutoff_time)
                 all_articles.extend(articles)
-        return all_articles
+        # Deduplicate by URL within this source
+        seen = set()
+        unique = [a for a in all_articles if a.get("url") and a["url"] not in seen and not seen.add(a["url"])]
+        logger.info(f"[{name}] After dedup: {len(unique)} unique articles (was {len(all_articles)})")
+        return unique
     
     logger.info(f"[{name}] Fetching sitemap: {base_url}")
     xml_content = fetch_url(base_url)
@@ -445,7 +480,11 @@ def fetch_competitor_articles(name: str, config: dict, cutoff_time: datetime) ->
                 except Exception as e:
                     logger.warning(f"[{name}] Error fetching child {child_url}: {e}")
         
-        return all_articles
+        # Deduplicate by URL within this source
+        seen = set()
+        unique = [a for a in all_articles if a.get("url") and a["url"] not in seen and not seen.add(a["url"])]
+        logger.info(f"[{name}] After dedup: {len(unique)} unique articles (was {len(all_articles)})")
+        return unique
     else:
         return parse_news_sitemap(xml_content, name, cutoff_time)
 
@@ -454,6 +493,7 @@ def fetch_all_competitors(hours: int = 24) -> List[Dict]:
     """
     Fetch articles from all competitors in parallel.
     Returns combined list of all articles from the last `hours` hours.
+    Guarantees globally unique URLs across all sources.
     """
     cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
     all_articles = []
@@ -473,8 +513,20 @@ def fetch_all_competitors(hours: int = 24) -> List[Dict]:
             except Exception as e:
                 logger.error(f"[{name}] Error during fetch: {e}")
 
-    logger.info(f"Total articles from all competitors: {len(all_articles)}")
-    return all_articles
+    # Global deduplication across ALL sources by URL
+    seen_urls: set = set()
+    unique_articles: List[Dict] = []
+    for article in all_articles:
+        url = article.get("url", "")
+        if url and url not in seen_urls:
+            seen_urls.add(url)
+            unique_articles.append(article)
+
+    logger.info(
+        f"Total articles: {len(all_articles)} fetched → {len(unique_articles)} unique "
+        f"({len(all_articles) - len(unique_articles)} duplicates removed)"
+    )
+    return unique_articles
 
 
 if __name__ == "__main__":
